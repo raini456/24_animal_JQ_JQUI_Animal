@@ -21,7 +21,7 @@ function createAnimalBox(index,item){
       //var xversatz = 100+(105*index);
       var xversatz = item.xpos;
       var yversatz = item.ypos;
-      $('.wrapper').append("<div class='animalBox' data-nr='"+index+"' style='background-image:url(assets/images/"+item.img+"); top:"+yversatz+"px; left:"+xversatz+"px;'></div>");
+      $('.wrapper').append("<div id='aBox"+index+"' class='animalBox' data-nr='"+index+"' style='background-image:url(assets/images/"+item.img+"); top:"+yversatz+"px; left:"+xversatz+"px;'></div>");
 }
 
 function createTxtBox(index,item){
@@ -48,51 +48,56 @@ function createTxtBox(index,item){
         },
         drag: function() {
         },
-        stop: function(e) {
-            var mousePosX = e.offsetX;
-            var mousePosY = e.offsetY;
-            console.log(e.offsetX, e.offsetY);
+        stop: function() {
             $(this).css({
                 opacity:1
-            });  
-            var xs =$(this).attr('data-sxpos');
-            var ys = $(this).attr('data-sypos');            
-            for (var i = 0, max = allData.length; i < max; i++) {
-               var picPosX = $(this).attr('data-anixpos');
-               var picPosY = $(this).attr('data-aniypos');               
-               var rangeXLeft= picPosX - 40;
-               var rangeXRight = picPosX + 40;
-               var rangeYTop= picPosY - 40;
-               var rangeYBottom = picPosY + 40;
-               if((mousePosX < rangeXLeft || mousePosX > rangeXRight)   
-                  ||(mousePosY > rangeYTop || mousePosY < rangeYBottom)){                         
-                   $(this).animate({top:picPosY, left:picPosX});
-               }
-               else{
-                   $(this).animate({top:mousePosY, left:mousePosX});
-               }
-            }
-            
-            $(this).animate({top:ys,left:xs},300);
+            }); 
+            var trefferObj;
+            for (var i = 0, max = $('.animalBox').length; i < max; i++) {
+                var obj = $('.animalBox')[i];
+
+                if (isHit($(this)[0], obj)) {
+                    trefferObj = obj;
+                }
+                if (trefferObj != undefined){
+                    if ($(this).attr('data-nr') == $(trefferObj).attr("data-nr")) {
+                        $(trefferObj).slideUp().slideDown();
+                    }                     
+                    else{
+                       var xs = $(this).attr('data-sxpos');
+                       var ys = $(this).attr('data-sypos'); 
+                       $(this).animate({top: ys, left: xs}, 300);
+                       alert("try again");
+                    }
+                }
+             }
         }
-      },
+      },      
       {containment:".wrapper", scroll:false}
     );
     
     $('.animalBox').draggable();    
   } 
-  function moveTxtBox(index, item){      
-      $(".txtBox[data-nr='"+index+"']").animate({          
+  function moveTxtBox(i, item){      
+      $(".txtBox[data-nr='"+ i +"']").animate({          
           left:item.xpos,
           top:item.ypos
-      },500);
-      
+      },1500);      
   }
   $(document).keyup(function(e) {      
       $.each(allData,function(key, value){
           moveTxtBox(key, value);
       });
-  });  
+  }); 
+  function isHit(div1, div2){
+      var rect1 = div1.getBoundingClientRect();
+      var rect2 = div2.getBoundingClientRect();
+      return !(rect1.right<rect2.left||
+              rect1.left>rect2.right||
+              rect1.bottom<rect2.top||
+              rect1.top>rect2.bottom
+              );
+  }
     /*
      * Aufgabe: Button: 
      * 1. wenn Klick auf Leertaste, dann wird die Zuordnung ausgelesen, jedes Bild fährt zur richtigen Position (man kann die Positonen einfach auch den Bildern zuordnen    
